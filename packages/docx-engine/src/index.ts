@@ -1,4 +1,5 @@
 export * from './types'
+export * from './list-of-figures-tables'
 export { parseDocx, type ParseExtras } from './parse'
 export {
   saveDocx,

@@ -47,8 +47,12 @@ export interface Run {
   vertAlign?: 'superscript' | 'subscript'
   /** East Asian emphasis mark (w:em). Display only; saving is kept faithful by rawRPr */
   em?: 'dot' | 'comma' | 'circle' | 'underDot'
-  /** hyperlink info; rId references an existing relationship in the original docx */
-  link?: { href: string; rId?: string; tooltip?: string }
+  /** hyperlink info; rId references an existing relationship in the original docx, anchor references internal bookmark */
+  link?: { href?: string; anchor?: string; rId?: string; tooltip?: string }
+  /** OOXML bookmark start marker (<w:bookmarkStart w:id="..." w:name="...">) */
+  bookmarkStart?: { id: string; name: string }
+  /** OOXML bookmark end marker (<w:bookmarkEnd w:id="...">) */
+  bookmarkEnd?: { id: string }
   /**
    * ids of comments whose range covers this run. Only set when the whole
    * commentRangeStart..End pair lives inside the same paragraph, so an edited
