@@ -840,6 +840,7 @@ async function openAiCompatibleTurn(
 const OPENAI_COMPATIBLE_BASE_URLS: Partial<Record<AiProviderId, string>> = {
   deepseek: 'https://api.deepseek.com/v1',
   openai: 'https://api.openai.com/v1',
+  openrouter: 'https://openrouter.ai/api/v1',
 }
 
 /** route a streaming, tool-calling-capable turn by provider id */
@@ -893,6 +894,7 @@ export async function streamForProvider(
       return streamGemini(config, system, messages, tools, maxTokens, cb)
     case 'deepseek':
     case 'openai':
+    case 'openrouter':
       return streamOpenAiCompatible(
         OPENAI_COMPATIBLE_BASE_URLS[provider]!,
         config,

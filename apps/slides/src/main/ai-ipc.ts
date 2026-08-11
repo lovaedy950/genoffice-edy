@@ -58,9 +58,17 @@ const activeAiStreams = new Map<string, AbortController>()
 export function registerAiIpc(): void {
   ipcMain.handle('ai:get-settings', (): AiSettings => {
     const stored = readJson<Partial<AiSettings> & LegacyAiSettings>(AI_SETTINGS_PATH(), {})
-    const settings = resolveAiSettings(stored, defaultAiSettings())
-    // AI features all go through Genspark (gsk login); stored settings that chose another provider are normalized back
-    settings.provider = 'genspark'
+    const openRouterKey = process.env.OPENROUTER_API_KEY
+    const settings = resolveAiSettings(
+      stored,
+      defaultAiSettings(
+        openRouterKey ? { openrouter: openRouterKey } : undefined,
+        openRouterKey ? 'openrouter' : 'genspark',
+      ),
+    )
+    if (openRouterKey && process.env.OPENROUTER_MODEL) {
+      settings.providers.openrouter.model = process.env.OPENROUTER_MODEL
+    }
     return settings
   })
 

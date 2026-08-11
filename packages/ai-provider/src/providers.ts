@@ -78,6 +78,19 @@ export const AI_PROVIDERS: AiProviderMeta[] = [
     keyPlaceholder: 'sk-...',
   },
   {
+    id: 'openrouter',
+    label: 'OpenRouter',
+    models: [
+      'openai/gpt-5.6-luna',
+      'anthropic/claude-sonnet-4.5',
+      'openai/gpt-4o-mini',
+      'google/gemini-2.5-flash',
+      'deepseek/deepseek-chat-v3-0324',
+    ],
+    defaultModel: 'openai/gpt-5.6-luna',
+    keyPlaceholder: 'sk-or-v1-...',
+  },
+  {
     id: 'custom',
     label: 'Custom',
     models: [],
@@ -95,6 +108,7 @@ export const AI_PROVIDERS: AiProviderMeta[] = [
  */
 export function defaultAiSettings(
   defaultApiKeys?: Partial<Record<AiProviderId, string>>,
+  defaultProvider: AiProviderId = 'genspark',
 ): AiSettings {
   const providers = {} as AiSettings['providers']
   for (const meta of AI_PROVIDERS) {
@@ -104,7 +118,7 @@ export function defaultAiSettings(
       baseUrl: meta.needsBaseUrl ? '' : undefined,
     }
   }
-  return { provider: 'genspark', providers }
+  return { provider: defaultProvider, providers }
 }
 
 /**

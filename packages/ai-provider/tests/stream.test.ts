@@ -93,6 +93,35 @@ describe('streamForProvider: empty SSE streams surface as errors', () => {
     ).resolves.toBeUndefined()
   })
 
+  it('openrouter uses the OpenAI-compatible streaming endpoint', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        okResponse(
+          sseStream([
+            'data: {"choices":[{"delta":{"content":"hello"},"finish_reason":null}]}',
+            'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}',
+            'data: [DONE]',
+          ]),
+        ),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+    const { cb } = collector()
+    await streamForProvider(
+      'openrouter',
+      { apiKey: 'sk-or-test', model: 'openai/gpt-4o-mini' },
+      'sys',
+      [],
+      [],
+      100,
+      cb,
+    )
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://openrouter.ai/api/v1/chat/completions',
+      expect.anything(),
+    )
+  })
+
   it('a tool-call-only stream still succeeds (no false empty error)', async () => {
     const body = sseStream([
       'data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"t1","name":"do_thing"}}',

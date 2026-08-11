@@ -104,6 +104,8 @@ testing and local overrides:
 | `GENOFFICE_FAKE_UPDATE`                                  | Exercise the updater UI without a real release feed                    |
 | `GENOFFICE_CLOUD_SLIDE`, `GENOFFICE_CLOUD_SLIDE_TIER`    | Route slide generation through the cloud endpoint                      |
 | `GSK_API_KEY`, `GSK_CLI_PATH`                            | Genspark credentials / CLI location for the built-in AI provider       |
+| `OPENROUTER_API_KEY`                                     | Use OpenRouter as the default AI provider in development               |
+| `OPENROUTER_MODEL`                                       | Override the OpenRouter model ID, for example `openai/gpt-5.6-luna`    |
 | `AI_SEARCH_DISABLE_GSK`, `SERPER_API_KEY`                | Disable the gsk search backend / supply a Serper key instead           |
 | `XLSX_SIDECAR_PATH`, `XLSX_OPEN_PATH`, `XLSX_DEBUG_PORT` | Point at a locally built xlsx sidecar and its debug port               |
 | `*_DEV_PORT`, `*_RENDERER_URL`                           | Per-app Vite dev server ports and renderer URLs (set by `npm run dev`) |

@@ -2116,10 +2116,17 @@ export function registerSheetsAiIpc(): void {
   ipcMain.handle(IPC_CHANNELS.aiGetSettings, (event): AiSettings => {
     sessionFor(event)
     const stored = readJson<Partial<AiSettings> & LegacyAiSettings>(SETTINGS_PATH(), {})
-    const settings = resolveAiSettings(stored, defaultAiSettings())
-    // AI features all go through Genspark (gsk login); legacy settings that chose
-    // another provider are reset
-    settings.provider = 'genspark'
+    const openRouterKey = process.env.OPENROUTER_API_KEY
+    const settings = resolveAiSettings(
+      stored,
+      defaultAiSettings(
+        openRouterKey ? { openrouter: openRouterKey } : undefined,
+        openRouterKey ? 'openrouter' : 'genspark',
+      ),
+    )
+    if (openRouterKey && process.env.OPENROUTER_MODEL) {
+      settings.providers.openrouter.model = process.env.OPENROUTER_MODEL
+    }
     return settings
   })
 

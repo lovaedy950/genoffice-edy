@@ -76,6 +76,25 @@ describe('chatForProvider', () => {
     )
   })
 
+  it('openrouter hits its fixed OpenAI-compatible endpoint', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(jsonResponse({ choices: [{ message: { content: 'ok' } }] }))
+    vi.stubGlobal('fetch', fetchMock)
+    await chatForProvider(
+      'openrouter',
+      { apiKey: 'sk-or-test', model: 'openai/gpt-4o-mini' },
+      'sys',
+      'hi',
+    )
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://openrouter.ai/api/v1/chat/completions',
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: 'Bearer sk-or-test' }),
+      }),
+    )
+  })
+
   it('custom: uses the configured base URL', async () => {
     const fetchMock = vi
       .fn()

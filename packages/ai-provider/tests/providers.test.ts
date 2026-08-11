@@ -11,12 +11,19 @@ describe('defaultAiSettings', () => {
     }
     expect(settings.providers.custom.baseUrl).toBe('')
     expect(settings.providers.anthropic.baseUrl).toBeUndefined()
+    expect(settings.providers.openrouter.model).toBe('openai/gpt-5.6-luna')
   })
 
   it('applies caller-supplied default keys only to the listed providers', () => {
     const settings = defaultAiSettings({ anthropic: 'sk-ant-preset' })
     expect(settings.providers.anthropic.apiKey).toBe('sk-ant-preset')
     expect(settings.providers.gemini.apiKey).toBe('')
+  })
+
+  it('supports an explicitly selected default provider', () => {
+    const settings = defaultAiSettings({ openrouter: 'sk-or-test' }, 'openrouter')
+    expect(settings.provider).toBe('openrouter')
+    expect(settings.providers.openrouter.apiKey).toBe('sk-or-test')
   })
 })
 
@@ -58,7 +65,10 @@ describe('resolveAiSettings', () => {
       defaults,
     )
     expect(resolved.provider).toBe('gemini')
-    expect(resolved.providers.gemini).toEqual({ apiKey: 'stored-gemini-key', model: 'gemini-2.5-pro' })
+    expect(resolved.providers.gemini).toEqual({
+      apiKey: 'stored-gemini-key',
+      model: 'gemini-2.5-pro',
+    })
     // provider not mentioned in stored.providers keeps the computed default
     expect(resolved.providers.anthropic.apiKey).toBe('preset-key')
   })
