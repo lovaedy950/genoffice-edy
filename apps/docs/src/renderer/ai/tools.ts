@@ -211,6 +211,18 @@ export const AGENT_TOOLS: AgentToolDef[] = [
       required: ['blockIndex'],
     },
   },
+  {
+    name: 'generate_list_of_figures',
+    description:
+      'Scan the document for images and figures, assign internal bookmarks, and insert an automatic hyperlinked List of Figures (Daftar Gambar).',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+  },
+  {
+    name: 'generate_list_of_tables',
+    description:
+      'Scan the document for tables, assign internal bookmarks, and insert an automatic hyperlinked List of Tables (Daftar Tabel).',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+  },
 ]
 
 export interface ToolExecution {
@@ -684,6 +696,51 @@ function executeSyncTool(
         output: outcome.summary + deletedNote,
         mutated: changed > 0,
         summary: outcome.summary,
+      }
+    }
+
+    case 'generate_list_of_figures': {
+      let figCount = 0
+      const items: { label: string; href: string }[] = []
+      editor.state.doc.forEach((node) => {
+        if (node.type.name === 'docProtected' && node.attrs.blockType === 'image') {
+          figCount++
+          const anchor = `_Ref_Fig_${figCount}`
+          const desc = node.attrs.label || `Gambar ${figCount}`
+          items.push({ label: `Gambar ${figCount}: ${desc}`, href: `#${anchor}` })
+        }
+      })
+
+      const lines = items.map((item) => `<p><a href="${item.href}">${item.label}</a></p>`).join('')
+      const html = `<h2>Daftar Gambar</h2>${lines || '<p><em>(Tidak ada gambar ditemukan)</em></p>'}`
+      const after = editor.state.doc.childCount - 1
+      insertBlocksAfter(editor, html, after)
+      return {
+        output: `Generated List of Figures (${figCount} figure(s) indexed).`,
+        mutated: true,
+        summary: 'Generated List of Figures',
+      }
+    }
+
+    case 'generate_list_of_tables': {
+      let tblCount = 0
+      const items: { label: string; href: string }[] = []
+      editor.state.doc.forEach((node) => {
+        if (node.type.name === 'table') {
+          tblCount++
+          const anchor = `_Ref_Tbl_${tblCount}`
+          items.push({ label: `Tabel ${tblCount}`, href: `#${anchor}` })
+        }
+      })
+
+      const lines = items.map((item) => `<p><a href="${item.href}">${item.label}</a></p>`).join('')
+      const html = `<h2>Daftar Tabel</h2>${lines || '<p><em>(Tidak ada tabel ditemukan)</em></p>'}`
+      const after = editor.state.doc.childCount - 1
+      insertBlocksAfter(editor, html, after)
+      return {
+        output: `Generated List of Tables (${tblCount} table(s) indexed).`,
+        mutated: true,
+        summary: 'Generated List of Tables',
       }
     }
 
