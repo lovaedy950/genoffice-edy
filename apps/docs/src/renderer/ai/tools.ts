@@ -223,6 +223,12 @@ export const AGENT_TOOLS: AgentToolDef[] = [
       'Scan the document for tables, assign internal bookmarks, and insert an automatic hyperlinked List of Tables (Daftar Tabel).',
     inputSchema: { type: 'object', properties: {}, required: [] },
   },
+  {
+    name: 'auto_caption_figures_tables',
+    description:
+      'Automatically scan all images and tables in the document and generate caption blocks for them.',
+    inputSchema: { type: 'object', properties: {}, required: [] },
+  },
 ]
 
 export interface ToolExecution {
@@ -741,6 +747,27 @@ function executeSyncTool(
         output: `Generated List of Tables (${tblCount} table(s) indexed).`,
         mutated: true,
         summary: 'Generated List of Tables',
+      }
+    }
+
+    case 'auto_caption_figures_tables': {
+      let figCount = 0
+      let tblCount = 0
+      editor.state.doc.forEach((node, offset, index) => {
+        if (node.type.name === 'docProtected' && node.attrs.blockType === 'image') {
+          figCount++
+          const captionHtml = `<p><em>Gambar ${figCount}: ${node.attrs.label || 'Gambar Utama'}</em></p>`
+          insertBlocksAfter(editor, captionHtml, index)
+        } else if (node.type.name === 'table') {
+          tblCount++
+          const captionHtml = `<p><em>Tabel ${tblCount}: Tabel Data</em></p>`
+          insertBlocksAfter(editor, captionHtml, index)
+        }
+      })
+      return {
+        output: `Added captions for ${figCount} figure(s) and ${tblCount} table(s).`,
+        mutated: figCount > 0 || tblCount > 0,
+        summary: 'Auto-captioned Figures & Tables',
       }
     }
 

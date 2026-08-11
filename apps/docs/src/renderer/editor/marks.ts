@@ -122,6 +122,35 @@ export const LinkMark = Mark.create({
       0,
     ]
   },
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('anchorLinkClickHandler'),
+        props: {
+          handleClick(view, pos, event) {
+            const target = event.target as HTMLElement | null
+            const link = target?.closest('a.doc-link') as HTMLAnchorElement | null
+            if (link) {
+              const href = link.getAttribute('href')
+              if (href?.startsWith('#')) {
+                event.preventDefault()
+                const anchorName = href.slice(1)
+                const el =
+                  document.getElementById(anchorName) ||
+                  document.querySelector(`[name="${anchorName}"]`) ||
+                  document.querySelector(`[data-anchor="${anchorName}"]`)
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+                  return true
+                }
+              }
+            }
+            return false
+          },
+        },
+      }),
+    ]
+  },
 })
 
 /**
